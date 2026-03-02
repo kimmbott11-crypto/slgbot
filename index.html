@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>1선지락전류 계산기 (SLG)</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f2f2f7;
+  color: #1c1c1e;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 0 80px 0;
+  -webkit-text-size-adjust: 100%;
+}
+
+.section {
+  background: #fff;
+  margin: 12px 16px;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.section-header h3 {
+  font-size: 13px;
+  color: #6e6e73;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+h1 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: #8e8e93;
+}
+
+.note {
+  font-size: 11px;
+  color: #8e8e93;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.row label {
+  font-size: 13px;
+  min-width: 30px;
+  font-weight: 500;
+}
+
+input[type="text"], input[type="number"] {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #d1d1d6;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #f9f9fb;
+  outline: none;
+  min-width: 0;
+}
+
+input:focus {
+  border-color: #007aff;
+  background: #fff;
+}
+
+select {
+  flex: 1;
+  padding: 8px 6px;
+  border: 1px solid #d1d1d6;
+  border-radius: 8px;
+  font-size: 13px;
+  background: #f9f9fb;
+  outline: none;
+  min-width: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%238e8e93' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 24px;
+}
+
+.btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background: #007aff;
+  color: #fff;
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 10px;
+}
+
+.btn-primary:active {
+  background: #0056cc;
+}
+
+.btn-small {
+  background: #e9e9eb;
+  color: #007aff;
+  font-size: 12px;
+  padding: 4px 10px;
+}
+
+.btn-small:active {
+  background: #d1d1d6;
+}
+
+.btn-danger {
+  background: none;
+  border: none;
+  color: #ff3b30;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+}
+
+.btn-add {
+  background: none;
+  border: none;
+  color: #007aff;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 0;
+  font-weight: 500;
+}
+
+.btn-add:disabled {
+  color: #c7c7cc;
+  cursor: default;
+}
+
+.line-header {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 6px;
+  padding-left: 24px;
+}
+
+.line-header span {
+  font-size: 11px;
+  color: #8e8e93;
+  font-weight: 500;
+}
+
+.line-header .col-name { flex: 2; }
+.line-header .col-size { width: 72px; }
+.line-header .col-dist { width: 64px; }
+.line-header .col-del { width: 28px; }
+
+.line-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.line-num {
+  font-size: 12px;
+  color: #8e8e93;
+  min-width: 20px;
+  text-align: right;
+  padding-right: 2px;
+}
+
+.line-row select.line-name { flex: 2; font-size: 12px; }
+.line-row select.line-size { width: 72px; font-size: 12px; }
+.line-row input.line-dist { width: 64px; font-size: 12px; padding: 8px 6px; }
+
+.result-box {
+  text-align: center;
+  padding: 12px 0;
+}
+
+.result-label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.result-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #007aff;
+}
+
+.detail-btn {
+  background: none;
+  border: none;
+  color: #007aff;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+/* 모달 */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 100;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.modal-overlay.active { display: flex; }
+
+.modal {
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  width: 100%;
+  max-width: 600px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #e5e5ea;
+}
+
+.modal-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: #007aff;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.modal-body {
+  overflow-y: auto;
+  padding: 16px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.db-section-title {
+  font-size: 13px;
+  color: #6e6e73;
+  font-weight: 600;
+  margin: 16px 0 8px 0;
+  text-transform: uppercase;
+}
+
+.db-section-title:first-child { margin-top: 0; }
+
+.db-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.db-table th {
+  font-weight: 600;
+  text-align: right;
+  padding: 4px 6px;
+  border-bottom: 1px solid #e5e5ea;
+}
+
+.db-table th:first-child { text-align: left; }
+
+.db-table td {
+  text-align: right;
+  padding: 4px 6px;
+  border-bottom: 1px solid #f2f2f7;
+}
+
+.db-table td:first-child { text-align: left; font-weight: 500; }
+
+.detail-text {
+  font-family: 'SF Mono', 'Menlo', 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+</style>
+</head>
+<body>
+
+<!-- 기준 정보 -->
+<div class="section">
+  <h1>1선지락전류 계산</h1>
+  <div class="subtitle">기준: 100MVA, 22.9kV / Ibase = <span id="ibase"></span> A</div>
+  <div class="note">
+    • 정상임피던스 = 역상임피던스 (Z1 = Z2)<br>
+    • 전압선 규격 = 중성선 규격
+  </div>
+</div>
+
+<!-- 모선 임피던스 -->
+<div class="section">
+  <div class="section-header">
+    <h3>모선 임피던스 (p.u.)</h3>
+    <button class="btn btn-small" onclick="applyTypical()">Typical</button>
+  </div>
+  <div class="row">
+    <label>정상</label>
+    <input type="text" id="brs1" placeholder="RS1" inputmode="decimal">
+    <input type="text" id="bxs1" placeholder="XS1" inputmode="decimal">
+  </div>
+  <div class="row">
+    <label>영상</label>
+    <input type="text" id="brs0" placeholder="RS0" inputmode="decimal">
+    <input type="text" id="bxs0" placeholder="XS0" inputmode="decimal">
+  </div>
+</div>
+
+<!-- 선로 정보 -->
+<div class="section">
+  <div class="section-header">
+    <h3>선로 정보 (최대 10개)</h3>
+    <button class="btn btn-small" onclick="showDB()">DB 보기</button>
+  </div>
+  <div class="line-header">
+    <span class="col-name">전압선</span>
+    <span class="col-size">규격(mm²)</span>
+    <span class="col-dist">거리(km)</span>
+    <span class="col-del"></span>
+  </div>
+  <div id="lines-container"></div>
+  <button class="btn-add" id="btn-add-line" onclick="addLine()">＋ 선로 추가</button>
+</div>
+
+<!-- 계산 버튼 + 결과 -->
+<div class="section">
+  <button class="btn btn-primary" onclick="calculate()">1선지락전류 계산</button>
+  <div id="result-area" style="display:none;">
+    <div class="result-box">
+      <div class="result-label">1선지락전류 (SLG)</div>
+      <div class="result-value" id="result-value"></div>
+      <button class="detail-btn" onclick="showDetail()">계산과정 보기</button>
+    </div>
+  </div>
+</div>
+
+<!-- DB 모달 -->
+<div class="modal-overlay" id="db-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>임피던스 DB (p.u./km)</h3>
+      <button class="modal-close" onclick="closeDB()">닫기</button>
+    </div>
+    <div class="modal-body" id="db-body"></div>
+  </div>
+</div>
+
+<!-- 계산과정 모달 -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>계산과정</h3>
+      <button class="modal-close" onclick="closeDetail()">닫기</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-text" id="detail-text"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// 임피던스 DB
+const lineImpedanceDB = [
+  {type:"AL",name:"AL-ACSR전선",size:"32",rs1:0.171452,xs1:0.086911,rs0:0.264,xs0:0.285673},
+  {type:"AL",name:"AL-ACSR전선",size:"58",rs1:0.094806,xs1:0.082634,rs0:0.16962,xs0:0.249429},
+  {type:"AL",name:"AL-ACSR전선",size:"95",rs1:0.057446,xs1:0.079019,rs0:0.113451,xs0:0.229933},
+  {type:"AS",name:"AS-AISC 특고압 가공 단심 케이블",size:"50",rs1:0.164623,xs1:0.031845,rs0:0.47583,xs0:0.018916},
+  {type:"AS",name:"AS-AISC 특고압 가공 단심 케이블",size:"95",rs1:0.087432,xs1:0.029748,rs0:0.135447,xs0:0.017181},
+  {type:"AS",name:"AS-AISC 특고압 가공 단심 케이블",size:"150",rs1:0.061993,xs1:0.028604,rs0:0.094506,xs0:0.015103},
+  {type:"AT",name:"AT-AITC 특고압 가공 3심 케이블",size:"50",rs1:0.167064,xs1:0.027841,rs0:0.244351,xs0:0.05673},
+  {type:"AT",name:"AT-AITC 특고압 가공 3심 케이블",size:"95",rs1:0.087927,xs1:0.026506,rs0:0.144963,xs0:0.051544},
+  {type:"AT",name:"AT-AITC 특고압 가공 3심 케이블",size:"150",rs1:0.024847,xs1:0.024218,rs0:0.073607,xs0:0.045289},
+  {type:"AT",name:"AT-AITC 특고압 가공 3심 케이블",size:"240",rs1:0.041551,xs1:0.023264,rs0:0.088614,xs0:0.040903},
+  {type:"AW",name:"AW-특고압ACSR/AW",size:"32",rs1:0.171452,xs1:0.086911,rs0:0.264,xs0:0.285673},
+  {type:"AW",name:"AW-특고압ACSR/AW",size:"58",rs1:0.094806,xs1:0.082634,rs0:0.16962,xs0:0.249429},
+  {type:"AW",name:"AW-특고압ACSR/AW",size:"95",rs1:0.057446,xs1:0.079019,rs0:0.113451,xs0:0.229933},
+  {type:"CA",name:"CA-22.9kV TR CNCE-W/AL",size:"95",rs1:0.078317,xs1:0.028909,rs0:0.023493,xs0:0.052783},
+  {type:"CA",name:"CA-22.9kV TR CNCE-W/AL",size:"240",rs1:0.030816,xs1:0.025438,rs0:0.006445,xs0:0.02868},
+  {type:"CA",name:"CA-22.9kV TR CNCE-W/AL",size:"400",rs1:0.019431,xs1:0.019431,rs0:0.003337,xs0:0.020671},
+  {type:"CB",name:"CB-22.9kV FR CNCO-W/AL",size:"95",rs1:0.077725,xs1:0.024866,rs0:0.101619,xs0:0.010907},
+  {type:"CB",name:"CB-22.9kV FR CNCO-W/AL",size:"240",rs1:0.03072,xs1:0.022311,rs0:0.056692,xs0:0.010907},
+  {type:"CB",name:"CB-22.9kV FR CNCO-W/AL",size:"400",rs1:0.019355,xs1:0.020595,rs0:0.044927,xs0:0.01085},
+  {type:"CE",name:"CE-TR CNCE-W",size:"60",rs1:0.074903,xs1:0.031674,rs0:0.246315,xs0:0.098682},
+  {type:"CE",name:"CE-TR CNCE-W",size:"200",rs1:0.024637,xs1:0.026582,rs0:0.086898,xs0:0.024599},
+  {type:"CE",name:"CE-TR CNCE-W",size:"325",rs1:0.017849,xs1:0.024618,rs0:0.054404,xs0:0.016952},
+  {type:"CE",name:"CE-TR CNCE-W",size:"600",rs1:0.013596,xs1:0.020842,rs0:0.030148,xs0:0.012738},
+  {type:"CF",name:"CF-특고압케이블 FR CNCO-W",size:"60",rs1:0.073879,xs1:0.03112,rs0:0.216242,xs0:0.067733},
+  {type:"CF",name:"CF-특고압케이블 FR CNCO-W",size:"100",rs1:0.043896,xs1:0.00865,rs0:0.138822,xs0:0.038004},
+  {type:"CF",name:"CF-특고압케이블 FR CNCO-W",size:"150",rs1:0.029128,xs1:0.02653,rs0:0.096775,xs0:0.025666},
+  {type:"CF",name:"CF-특고압케이블 FR CNCO-W",size:"200",rs1:0.022767,xs1:0.025823,rs0:0.074178,xs0:0.020651},
+  {type:"CF",name:"CF-특고압케이블 FR CNCO-W",size:"250",rs1:0.018242,xs1:0.024887,rs0:0.058122,xs0:0.018134},
+  {type:"CF",name:"CF-특고압케이블 FR CNCO-W",size:"325",rs1:0.014325,xs1:0.023741,rs0:0.044678,xs0:0.015617},
+  {type:"CF",name:"CF-특고압케이블 FR CNCO-W",size:"400",rs1:0.014301,xs1:0.02341,rs0:0.053222,xs0:0.017353},
+  {type:"CF",name:"CF-특고압케이블 FR CNCO-W",size:"600",rs1:0.014035,xs1:0.024351,rs0:0.029481,xs0:0.012757},
+  {type:"CN",name:"CN-특고압케이블CNCV",size:"60",rs1:0.073879,xs1:0.03112,rs0:0.216242,xs0:0.067733},
+  {type:"CN",name:"CN-특고압케이블CNCV",size:"100",rs1:0.043896,xs1:0.00865,rs0:0.138822,xs0:0.038004},
+  {type:"CN",name:"CN-특고압케이블CNCV",size:"150",rs1:0.029128,xs1:0.02653,rs0:0.096775,xs0:0.025666},
+  {type:"CN",name:"CN-특고압케이블CNCV",size:"200",rs1:0.022767,xs1:0.025823,rs0:0.074178,xs0:0.020651},
+  {type:"CN",name:"CN-특고압케이블CNCV",size:"250",rs1:0.018242,xs1:0.024887,rs0:0.058122,xs0:0.018134},
+  {type:"CN",name:"CN-특고압케이블CNCV",size:"325",rs1:0.014325,xs1:0.023741,rs0:0.044678,xs0:0.015617},
+  {type:"CN",name:"CN-특고압케이블CNCV",size:"400",rs1:0.014301,xs1:0.02341,rs0:0.053222,xs0:0.017353},
+  {type:"CN",name:"CN-특고압케이블CNCV",size:"600",rs1:0.014035,xs1:0.024351,rs0:0.029481,xs0:0.012757},
+  {type:"CT",name:"CT-특고압케이블TR CNCV-W",size:"60",rs1:0.073879,xs1:0.03112,rs0:0.216242,xs0:0.067733},
+  {type:"CT",name:"CT-특고압케이블TR CNCV-W",size:"100",rs1:0.043896,xs1:0.00865,rs0:0.138822,xs0:0.038004},
+  {type:"CT",name:"CT-특고압케이블TR CNCV-W",size:"150",rs1:0.029128,xs1:0.02653,rs0:0.096775,xs0:0.025666},
+  {type:"CT",name:"CT-특고압케이블TR CNCV-W",size:"200",rs1:0.022767,xs1:0.025823,rs0:0.074178,xs0:0.020651},
+  {type:"CT",name:"CT-특고압케이블TR CNCV-W",size:"250",rs1:0.018242,xs1:0.024887,rs0:0.058122,xs0:0.018134},
+  {type:"CT",name:"CT-특고압케이블TR CNCV-W",size:"325",rs1:0.014325,xs1:0.023741,rs0:0.044678,xs0:0.015617},
+  {type:"CT",name:"CT-특고압케이블TR CNCV-W",size:"400",rs1:0.014301,xs1:0.02341,rs0:0.053222,xs0:0.017353},
+  {type:"CT",name:"CT-특고압케이블TR CNCV-W",size:"600",rs1:0.014035,xs1:0.024351,rs0:0.029481,xs0:0.012757},
+  {type:"CW",name:"CW-특고압케이블CNCV-W",size:"60",rs1:0.073879,xs1:0.03112,rs0:0.216242,xs0:0.067733},
+  {type:"CW",name:"CW-특고압케이블CNCV-W",size:"100",rs1:0.043896,xs1:0.00865,rs0:0.138822,xs0:0.038004},
+  {type:"CW",name:"CW-특고압케이블CNCV-W",size:"150",rs1:0.029128,xs1:0.02653,rs0:0.096775,xs0:0.025666},
+  {type:"CW",name:"CW-특고압케이블CNCV-W",size:"200",rs1:0.022767,xs1:0.025823,rs0:0.074178,xs0:0.020651},
+  {type:"CW",name:"CW-특고압케이블CNCV-W",size:"250",rs1:0.018242,xs1:0.024887,rs0:0.058122,xs0:0.018134},
+  {type:"CW",name:"CW-특고압케이블CNCV-W",size:"325",rs1:0.014325,xs1:0.023741,rs0:0.044678,xs0:0.015617},
+  {type:"CW",name:"CW-특고압케이블CNCV-W",size:"400",rs1:0.014301,xs1:0.02341,rs0:0.053222,xs0:0.017353},
+  {type:"CW",name:"CW-특고압케이블CNCV-W",size:"600",rs1:0.014035,xs1:0.024351,rs0:0.029481,xs0:0.012757},
+  {type:"EC",name:"EC-특고압ACSR-OC",size:"32",rs1:0.176981,xs1:0.087964,rs0:0.269528,xs0:0.286726},
+  {type:"EC",name:"EC-특고압ACSR-OC",size:"58",rs1:0.097663,xs1:0.083683,rs0:0.172478,xs0:0.250478},
+  {type:"EC",name:"EC-특고압ACSR-OC",size:"95",rs1:0.059738,xs1:0.08085,rs0:0.115743,xs0:0.231763},
+  {type:"EH",name:"EH-특고압수밀형 OC-W",size:"38",rs1:0.095779,xs1:0.087555,rs0:0.169674,xs0:0.21151},
+  {type:"EH",name:"EH-특고압수밀형 OC-W",size:"60",rs1:0.059765,xs1:0.083982,rs0:0.120592,xs0:0.202658},
+  {type:"EW",name:"EW-특고압ACSR/AW-OC",size:"32",rs1:0.167256,xs1:0.087964,rs0:0.259802,xs0:0.286726},
+  {type:"EW",name:"EW-특고압ACSR/AW-OC",size:"58",rs1:0.092325,xs1:0.083683,rs0:0.16714,xs0:0.250478},
+  {type:"EW",name:"EW-특고압ACSR/AW-OC",size:"95",rs1:0.057642,xs1:0.08085,rs0:0.113647,xs0:0.231763},
+  {type:"OW",name:"OW-OW전선",size:"22",rs1:0.156,xs1:0.0887,rs0:0.2342,xs0:0.3402},
+  {type:"OW",name:"OW-OW전선",size:"38",rs1:0.0922,xs1:0.0849,rs0:0.1585,xs0:0.3205},
+  {type:"OW",name:"OW-OW전선",size:"60",rs1:0.0573,xs1:0.0807,rs0:0.1354,xs0:0.3016},
+  {type:"TW",name:"TW-ACSR/AW-TR/OC",size:"58",rs1:0.14463,xs1:0.08419,rs0:0.39333,xs0:0.36305},
+  {type:"TW",name:"TW-ACSR/AW-TR/OC",size:"95",rs1:0.10943,xs1:0.08114,rs0:0.37566,xs0:0.36},
+  {type:"TW",name:"TW-ACSR/AW-TR/OC",size:"160",rs1:0.08947,xs1:0.07756,rs0:0.36495,xs0:0.35642},
+  {type:"TW",name:"TW-ACSR/AW-TR/OC",size:"240",rs1:0.08046,xs1:0.07461,rs0:0.35922,xs0:0.35347},
+  {type:"WL",name:"WL-AL피복저손실ACSR/AW/L",size:"32",rs1:0.172,xs1:0.0881,rs0:0.2472,xs0:0.3512},
+  {type:"WL",name:"WL-AL피복저손실ACSR/AW/L",size:"58",rs1:0.0948,xs1:0.0838,rs0:0.1585,xs0:0.3312},
+  {type:"WL",name:"WL-AL피복저손실ACSR/AW/L",size:"95",rs1:0.058,xs1:0.0803,rs0:0.135,xs0:0.3085},
+  {type:"WO",name:"WO-WO전선",size:"22",rs1:0.156021,xs1:0.09133,rs0:0.24425,xs0:0.229355},
+  {type:"WO",name:"WO-WO전선",size:"38",rs1:0.092349,xs1:0.087556,rs0:0.166508,xs0:0.212393},
+  {type:"WO",name:"WO-WO전선",size:"60",rs1:0.05748,xs1:0.083982,rs0:0.118307,xs0:0.202658},
+];
+
+const baseMVA = 100.0;
+const baseKV = 22.9;
+const baseCurrentA = baseMVA * 1e6 / (Math.sqrt(3) * baseKV * 1e3);
+
+// 전압선명 리스트
+const lineNames = [...new Set(lineImpedanceDB.map(d => d.name))].sort();
+
+// 전압선명별 규격 리스트
+function getSizes(name) {
+  const sizes = [...new Set(lineImpedanceDB.filter(d => d.name === name).map(d => d.size))];
+  return sizes.sort((a, b) => (parseInt(a) || 0) - (parseInt(b) || 0));
+}
+
+let lineCount = 0;
+let calcDetailText = '';
+
+// 초기화
+document.getElementById('ibase').textContent = baseCurrentA.toFixed(1);
+
+function applyTypical() {
+  document.getElementById('brs1').value = '0.00021';
+  document.getElementById('bxs1').value = '0.34817';
+  document.getElementById('brs0').value = '0';
+  document.getElementById('bxs0').value = '0.49724';
+}
+
+function addLine() {
+  if (lineCount >= 10) return;
+  lineCount++;
+  const container = document.getElementById('lines-container');
+  const div = document.createElement('div');
+  div.className = 'line-row';
+  div.id = 'line-' + lineCount;
+  const idx = lineCount;
+
+  let nameOpts = '<option value="">선택</option>';
+  lineNames.forEach(n => { nameOpts += `<option value="${n}">${n}</option>`; });
+
+  div.innerHTML = `
+    <span class="line-num">${idx}.</span>
+    <select class="line-name" onchange="onNameChange(${idx})">${nameOpts}</select>
+    <select class="line-size" disabled><option value="">-</option></select>
+    <input class="line-dist" type="text" placeholder="km" inputmode="decimal">
+    <button class="btn-danger" onclick="removeLine(${idx})">−</button>
+  `;
+  container.appendChild(div);
+  updateAddBtn();
+}
+
+function removeLine(idx) {
+  const el = document.getElementById('line-' + idx);
+  if (el) el.remove();
+  // 번호 재정렬
+  const rows = document.querySelectorAll('#lines-container .line-row');
+  rows.forEach((row, i) => {
+    row.querySelector('.line-num').textContent = (i + 1) + '.';
+  });
+  lineCount = rows.length;
+  updateAddBtn();
+}
+
+function onNameChange(idx) {
+  const row = document.getElementById('line-' + idx);
+  if (!row) return;
+  const nameSelect = row.querySelector('.line-name');
+  const sizeSelect = row.querySelector('.line-size');
+  const name = nameSelect.value;
+  sizeSelect.innerHTML = '<option value="">-</option>';
+  if (name) {
+    const sizes = getSizes(name);
+    sizes.forEach(s => { sizeSelect.innerHTML += `<option value="${s}">${s}</option>`; });
+    sizeSelect.disabled = false;
+  } else {
+    sizeSelect.disabled = true;
+  }
+}
+
+function updateAddBtn() {
+  document.getElementById('btn-add-line').disabled = lineCount >= 10;
+}
+
+function calculate() {
+  const brs1 = parseFloat(document.getElementById('brs1').value);
+  const bxs1 = parseFloat(document.getElementById('bxs1').value);
+  const brs0 = parseFloat(document.getElementById('brs0').value);
+  const bxs0 = parseFloat(document.getElementById('bxs0').value);
+
+  if (isNaN(brs1) || isNaN(bxs1) || isNaN(brs0) || isNaN(bxs0)) {
+    document.getElementById('result-area').style.display = 'block';
+    document.getElementById('result-value').textContent = '모선 임피던스를 입력하세요';
+    document.getElementById('result-value').style.fontSize = '16px';
+    calcDetailText = '';
+    return;
+  }
+
+  let detail = '=== 1선지락전류 계산과정 ===\n\n';
+  detail += '■ 기준값\n';
+  detail += `  기준용량: ${baseMVA.toFixed(0)} MVA\n`;
+  detail += `  기준전압: ${baseKV.toFixed(1)} kV\n`;
+  detail += `  기준전류 Ibase = ${baseCurrentA.toFixed(1)} A\n`;
+  detail += `  (= ${baseMVA}MVA / (√3 × ${baseKV.toFixed(1)}kV))\n\n`;
+
+  detail += '■ 모선 임피던스 (p.u.)\n';
+  detail += `  Z1_bus = ${brs1.toFixed(5)} + j${bxs1.toFixed(5)}\n`;
+  detail += `  Z0_bus = ${brs0.toFixed(5)} + j${bxs0.toFixed(5)}\n\n`;
+
+  let sumRS1 = 0, sumXS1 = 0, sumRS0 = 0, sumXS0 = 0;
+  detail += '■ 선로 임피던스 (p.u./km × km)\n';
+
+  const rows = document.querySelectorAll('#lines-container .line-row');
+  let lineIdx = 0;
+  rows.forEach(row => {
+    const name = row.querySelector('.line-name').value;
+    const size = row.querySelector('.line-size').value;
+    const dist = parseFloat(row.querySelector('.line-dist').value) || 0;
+    if (!name || !size) return;
+
+    const imp = lineImpedanceDB.find(d => d.name === name && d.size === size);
+    if (!imp) return;
+
+    lineIdx++;
+    const lr1 = imp.rs1 * dist;
+    const lx1 = imp.xs1 * dist;
+    const lr0 = imp.rs0 * dist;
+    const lx0 = imp.xs0 * dist;
+    sumRS1 += lr1; sumXS1 += lx1; sumRS0 += lr0; sumXS0 += lx0;
+
+    detail += `  [${lineIdx}] ${name} ${size}mm² × ${dist.toFixed(3)}km\n`;
+    detail += `      Z1 = ${lr1.toFixed(5)} + j${lx1.toFixed(5)}\n`;
+    detail += `      Z0 = ${lr0.toFixed(5)} + j${lx0.toFixed(5)}\n`;
+  });
+
+  detail += `\n  선로합계 Z1 = ${sumRS1.toFixed(5)} + j${sumXS1.toFixed(5)}\n`;
+  detail += `  선로합계 Z0 = ${sumRS0.toFixed(5)} + j${sumXS0.toFixed(5)}\n\n`;
+
+  const totalR1 = brs1 + sumRS1;
+  const totalX1 = bxs1 + sumXS1;
+  const totalR0 = brs0 + sumRS0;
+  const totalX0 = bxs0 + sumXS0;
+
+  detail += '■ 총 임피던스 (p.u.)\n';
+  detail += `  Z1_total = ${totalR1.toFixed(5)} + j${totalX1.toFixed(5)}\n`;
+  detail += `  Z0_total = ${totalR0.toFixed(5)} + j${totalX0.toFixed(5)}\n\n`;
+
+  const zR = 2.0 * totalR1 + totalR0;
+  const zX = 2.0 * totalX1 + totalX0;
+  const zMag = Math.sqrt(zR * zR + zX * zX);
+
+  detail += '■ 합성 임피던스\n';
+  detail += `  2Z1 + Z0 = ${zR.toFixed(5)} + j${zX.toFixed(5)}\n`;
+  detail += `  |2Z1 + Z0| = ${zMag.toFixed(5)} p.u.\n\n`;
+
+  if (zMag <= 0) {
+    document.getElementById('result-area').style.display = 'block';
+    document.getElementById('result-value').textContent = '임피던스 값 오류';
+    document.getElementById('result-value').style.fontSize = '16px';
+    calcDetailText = detail;
+    return;
+  }
+
+  const slgCurrent = 3.0 * baseCurrentA / zMag;
+  detail += '■ 1선지락전류 (SLG)\n';
+  detail += '  Islg = 3 × Ibase / |2Z1 + Z0|\n';
+  detail += `       = 3 × ${baseCurrentA.toFixed(1)} / ${zMag.toFixed(5)}\n`;
+  detail += `       = ${slgCurrent.toFixed(1)} A\n`;
+
+  document.getElementById('result-area').style.display = 'block';
+  document.getElementById('result-value').textContent = slgCurrent.toFixed(1) + ' A';
+  document.getElementById('result-value').style.fontSize = '32px';
+  calcDetailText = detail;
+}
+
+function showDB() {
+  const body = document.getElementById('db-body');
+  let html = '';
+  const grouped = {};
+  lineImpedanceDB.forEach(d => {
+    if (!grouped[d.name]) grouped[d.name] = [];
+    grouped[d.name].push(d);
+  });
+
+  for (const name of lineNames) {
+    html += `<div class="db-section-title">${name}</div>`;
+    html += '<table class="db-table"><tr><th>규격</th><th>RS1</th><th>XS1</th><th>RS0</th><th>XS0</th></tr>';
+    grouped[name].forEach(d => {
+      html += `<tr><td>${d.size}</td><td>${d.rs1.toFixed(4)}</td><td>${d.xs1.toFixed(4)}</td><td>${d.rs0.toFixed(4)}</td><td>${d.xs0.toFixed(4)}</td></tr>`;
+    });
+    html += '</table>';
+  }
+  body.innerHTML = html;
+  document.getElementById('db-modal').classList.add('active');
+}
+
+function closeDB() { document.getElementById('db-modal').classList.remove('active'); }
+
+function showDetail() {
+  if (!calcDetailText) return;
+  document.getElementById('detail-text').textContent = calcDetailText;
+  document.getElementById('detail-modal').classList.add('active');
+}
+
+function closeDetail() { document.getElementById('detail-modal').classList.remove('active'); }
+
+// 모달 바깥 클릭 시 닫기
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('active');
+  });
+});
+
+// 초기 선로 1개 추가
+addLine();
+</script>
+</body>
+</html>
