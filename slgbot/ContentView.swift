@@ -197,8 +197,11 @@ struct ContentView: View {
     var baseCurrentA: Double { baseMVA * 1_000_000 / (sqrt(3.0) * baseKV * 1_000) }
     
     @State private var resultSLG: String = ""
-    @State private var calcDetail: String = ""
-    @State private var showCalcDetail = false
+    @State private var result3P: String = ""
+    @State private var calcDetailSLG: String = ""
+    @State private var calcDetail3P: String = ""
+    @State private var showCalcDetailSLG = false
+    @State private var showCalcDetail3P = false
     
     // 티피컬 모선 임피던스 적용
     func applyTypicalBusImpedance() {
@@ -208,31 +211,36 @@ struct ContentView: View {
         busImpedanceXS0 = "0.49724"
     }
     
-    // 1선지락전류 계산
-    func calculateSLG() {
+    // 고장계산 (1선지락 + 3상단락)
+    func calculate() {
         guard let brs1 = Double(busImpedanceRS1),
               let bxs1 = Double(busImpedanceXS1),
               let brs0 = Double(busImpedanceRS0),
               let bxs0 = Double(busImpedanceXS0) else {
             resultSLG = "모선 임피던스를 입력하세요"
-            calcDetail = ""
+            result3P = "모선 임피던스를 입력하세요"
+            calcDetailSLG = ""
+            calcDetail3P = ""
             return
         }
         
-        var detail = "=== 1선지락전류 계산과정 ===\n\n"
-        detail += "■ 기준값\n"
-        detail += "  기준용량: \(Int(baseMVA)) MVA\n"
-        detail += "  기준전압: \(String(format: "%.1f", baseKV)) kV\n"
-        detail += String(format: "  기준전류 Ibase = %.1f A\n", baseCurrentA)
-        detail += String(format: "  (= %gMVA / (√3 × %.1fkV))\n\n", baseMVA, baseKV)
+        let baseInfo = "■ 기준값\n  기준용량: \(Int(baseMVA)) MVA\n  기준전압: \(String(format: "%.1f", baseKV)) kV\n" +
+            String(format: "  기준전류 Ibase = %.1f A\n", baseCurrentA) +
+            String(format: "  (= %gMVA / (√3 × %.1fkV))\n\n", baseMVA, baseKV)
         
-        detail += "■ 모선 임피던스 (p.u.)\n"
-        detail += String(format: "  Z1_bus = %.5f + j%.5f\n", brs1, bxs1)
-        detail += String(format: "  Z0_bus = %.5f + j%.5f\n\n", brs0, bxs0)
+        var dSlg = "=== 1선지락전류 계산과정 ===\n\n" + baseInfo
+        var d3P = "=== 3상단락전류 계산과정 ===\n\n" + baseInfo
+        
+        dSlg += "■ 모선 임피던스 (p.u.)\n"
+        dSlg += String(format: "  Z1_bus = %.5f + j%.5f\n", brs1, bxs1)
+        dSlg += String(format: "  Z0_bus = %.5f + j%.5f\n\n", brs0, bxs0)
+        d3P += "■ 모선 임피던스 (p.u.)\n"
+        d3P += String(format: "  Z1_bus = %.5f + j%.5f\n\n", brs1, bxs1)
         
         // 선로 임피던스 합산
         var sumRS1 = 0.0, sumXS1 = 0.0, sumRS0 = 0.0, sumXS0 = 0.0
-        detail += "■ 선로 임피던스 (p.u./km × km)\n"
+        dSlg += "■ 선로 임피던스 (p.u./km × km)\n"
+        d3P += "■ 선로 임피던스 (p.u./km × km)\n"
         var idx = 0
         for line in lines {
             let opts = neutralOptions(ln: line.lineName, ls: line.lineSize)
@@ -244,48 +252,62 @@ struct ContentView: View {
             let lr0 = rec.rs0 * line.distance
             let lx0 = rec.xs0 * line.distance
             sumRS1 += lr1; sumXS1 += lx1; sumRS0 += lr0; sumXS0 += lx0
-            detail += "  [\(idx)] \(line.lineName) \(line.lineSize)mm²\n"
-            detail += "      중성선: \(rec.nn) \(rec.ns)mm² × \(String(format: "%.3f", line.distance))km\n"
-            detail += String(format: "      Z1 = %.5f + j%.5f\n", lr1, lx1)
-            detail += String(format: "      Z0 = %.5f + j%.5f\n", lr0, lx0)
+            let lineDesc = "  [\(idx)] \(line.lineName) \(line.lineSize)mm²\n      중성선: \(rec.nn) \(rec.ns)mm² × \(String(format: "%.3f", line.distance))km\n"
+            dSlg += lineDesc
+            dSlg += String(format: "      Z1 = %.5f + j%.5f\n", lr1, lx1)
+            dSlg += String(format: "      Z0 = %.5f + j%.5f\n", lr0, lx0)
+            d3P += lineDesc
+            d3P += String(format: "      Z1 = %.5f + j%.5f\n", lr1, lx1)
         }
-        detail += String(format: "\n  선로합계 Z1 = %.5f + j%.5f\n", sumRS1, sumXS1)
-        detail += String(format: "  선로합계 Z0 = %.5f + j%.5f\n\n", sumRS0, sumXS0)
+        dSlg += String(format: "\n  선로합계 Z1 = %.5f + j%.5f\n", sumRS1, sumXS1)
+        dSlg += String(format: "  선로합계 Z0 = %.5f + j%.5f\n\n", sumRS0, sumXS0)
+        d3P += String(format: "\n  선로합계 Z1 = %.5f + j%.5f\n\n", sumRS1, sumXS1)
         
         // 총 임피던스
-        let totalR1 = brs1 + sumRS1
-        let totalX1 = bxs1 + sumXS1
-        let totalR0 = brs0 + sumRS0
-        let totalX0 = bxs0 + sumXS0
+        let tR1 = brs1 + sumRS1, tX1 = bxs1 + sumXS1
+        let tR0 = brs0 + sumRS0, tX0 = bxs0 + sumXS0
         
-        detail += "■ 총 임피던스 (p.u.)\n"
-        detail += String(format: "  Z1_total = %.5f + j%.5f\n", totalR1, totalX1)
-        detail += String(format: "  Z0_total = %.5f + j%.5f\n\n", totalR0, totalX0)
+        dSlg += "■ 총 임피던스 (p.u.)\n"
+        dSlg += String(format: "  Z1_total = %.5f + j%.5f\n", tR1, tX1)
+        dSlg += String(format: "  Z0_total = %.5f + j%.5f\n\n", tR0, tX0)
+        d3P += "■ 총 임피던스 (p.u.)\n"
+        d3P += String(format: "  Z1_total = %.5f + j%.5f\n\n", tR1, tX1)
         
-        // 2Z1 + Z0
-        let zR = 2.0 * totalR1 + totalR0
-        let zX = 2.0 * totalX1 + totalX0
+        // SLG: 2Z1 + Z0
+        let zR = 2.0 * tR1 + tR0, zX = 2.0 * tX1 + tX0
         let zMag = sqrt(zR * zR + zX * zX)
+        dSlg += "■ 합성 임피던스\n"
+        dSlg += String(format: "  2Z1 + Z0 = %.5f + j%.5f\n", zR, zX)
+        dSlg += String(format: "  |2Z1 + Z0| = %.5f p.u.\n\n", zMag)
         
-        detail += "■ 합성 임피던스\n"
-        detail += String(format: "  2Z1 + Z0 = %.5f + j%.5f\n", zR, zX)
-        detail += String(format: "  |2Z1 + Z0| = %.5f p.u.\n\n", zMag)
+        // 3P: |Z1|
+        let z1Mag = sqrt(tR1 * tR1 + tX1 * tX1)
+        d3P += String(format: "■ |Z1_total| = %.5f p.u.\n\n", z1Mag)
         
-        guard zMag > 0 else {
-            resultSLG = "임피던스 값 오류"
-            calcDetail = detail
-            return
+        if zMag > 0 {
+            let slg = 3.0 * baseCurrentA / zMag
+            dSlg += "■ 1선지락전류 (SLG)\n"
+            dSlg += String(format: "  Islg = 3 × Ibase / |2Z1 + Z0|\n")
+            dSlg += String(format: "       = 3 × %.1f / %.5f\n", baseCurrentA, zMag)
+            dSlg += String(format: "       = %.1f A\n", slg)
+            resultSLG = String(format: "%.1f A", slg)
+        } else {
+            resultSLG = "-"
         }
         
-        // SLG 전류
-        let slgCurrent = 3.0 * baseCurrentA / zMag
-        detail += "■ 1선지락전류 (SLG)\n"
-        detail += String(format: "  Islg = 3 × Ibase / |2Z1 + Z0|\n")
-        detail += String(format: "       = 3 × %.1f / %.5f\n", baseCurrentA, zMag)
-        detail += String(format: "       = %.1f A\n", slgCurrent)
+        if z1Mag > 0 {
+            let p3 = baseCurrentA / z1Mag
+            d3P += "■ 3상단락전류\n"
+            d3P += String(format: "  I3φ = Ibase / |Z1_total|\n")
+            d3P += String(format: "      = %.1f / %.5f\n", baseCurrentA, z1Mag)
+            d3P += String(format: "      = %.1f A\n", p3)
+            result3P = String(format: "%.1f A", p3)
+        } else {
+            result3P = "-"
+        }
         
-        resultSLG = String(format: "%.1f A", slgCurrent)
-        calcDetail = detail
+        calcDetailSLG = dSlg
+        calcDetail3P = d3P
     }
     
     var body: some View {
@@ -429,7 +451,7 @@ struct ContentView: View {
             
             // 계산 + 결과
             Section {
-                Button(action: calculateSLG) {
+                Button(action: calculate) {
                     Text("고장계산")
                         .frame(maxWidth: .infinity)
                         .padding(8)
@@ -443,9 +465,26 @@ struct ContentView: View {
                             .font(.title)
                             .bold()
                             .foregroundColor(.blue)
-                        if !calcDetail.isEmpty {
+                        if !calcDetailSLG.isEmpty {
                             Button("계산과정 보기") {
-                                showCalcDetail = true
+                                showCalcDetailSLG = true
+                            }
+                            .font(.caption)
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+                
+                if !result3P.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("3상단락전류").font(.headline)
+                        Text(result3P)
+                            .font(.title)
+                            .bold()
+                            .foregroundColor(.red)
+                        if !calcDetail3P.isEmpty {
+                            Button("계산과정 보기") {
+                                showCalcDetail3P = true
                             }
                             .font(.caption)
                         }
@@ -462,19 +501,36 @@ struct ContentView: View {
                 }
             }
         }
-        .sheet(isPresented: $showCalcDetail) {
+        .sheet(isPresented: $showCalcDetailSLG) {
             NavigationStack {
                 ScrollView {
-                    Text(calcDetail)
+                    Text(calcDetailSLG)
                         .font(.system(.caption, design: .monospaced))
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .navigationTitle("계산과정")
+                .navigationTitle("1선지락전류 계산과정")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("닫기") { showCalcDetail = false }
+                        Button("닫기") { showCalcDetailSLG = false }
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showCalcDetail3P) {
+            NavigationStack {
+                ScrollView {
+                    Text(calcDetail3P)
+                        .font(.system(.caption, design: .monospaced))
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .navigationTitle("3상단락전류 계산과정")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("닫기") { showCalcDetail3P = false }
                     }
                 }
             }
