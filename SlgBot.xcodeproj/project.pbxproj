@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		B92B7D002F54916600589212 /* slgbot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = slgbot.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B92B7D002F54916600589212 /* SlgBot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SlgBot.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -40,7 +40,7 @@
 		B92B7D012F54916600589212 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				B92B7D002F54916600589212 /* slgbot.app */,
+				B92B7D002F54916600589212 /* SlgBot.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,9 +48,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B92B7CFF2F54916600589212 /* slgbot */ = {
+		B92B7CFF2F54916600589212 /* SlgBot */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B92B7D0B2F54916A00589212 /* Build configuration list for PBXNativeTarget "slgbot" */;
+			buildConfigurationList = B92B7D0B2F54916A00589212 /* Build configuration list for PBXNativeTarget "SlgBot" */;
 			buildPhases = (
 				B92B7CFC2F54916600589212 /* Sources */,
 				B92B7CFD2F54916600589212 /* Frameworks */,
@@ -63,11 +63,11 @@
 			fileSystemSynchronizedGroups = (
 				B92B7D022F54916600589212 /* slgbot */,
 			);
-			name = slgbot;
+			name = SlgBot;
 			packageProductDependencies = (
 			);
 			productName = slgbot;
-			productReference = B92B7D002F54916600589212 /* slgbot.app */;
+			productReference = B92B7D002F54916600589212 /* SlgBot.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -85,7 +85,7 @@
 					};
 				};
 			};
-			buildConfigurationList = B92B7CFB2F54916600589212 /* Build configuration list for PBXProject "slgbot" */;
+			buildConfigurationList = B92B7CFB2F54916600589212 /* Build configuration list for PBXProject "SlgBot" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -99,7 +99,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				B92B7CFF2F54916600589212 /* slgbot */,
+				B92B7CFF2F54916600589212 /* SlgBot */,
 			);
 		};
 /* End PBXProject section */
@@ -313,7 +313,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		B92B7CFB2F54916600589212 /* Build configuration list for PBXProject "slgbot" */ = {
+		B92B7CFB2F54916600589212 /* Build configuration list for PBXProject "SlgBot" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B92B7D092F54916A00589212 /* Debug */,
@@ -322,7 +322,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B92B7D0B2F54916A00589212 /* Build configuration list for PBXNativeTarget "slgbot" */ = {
+		B92B7D0B2F54916A00589212 /* Build configuration list for PBXNativeTarget "SlgBot" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B92B7D0C2F54916A00589212 /* Debug */,
