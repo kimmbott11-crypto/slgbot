@@ -293,7 +293,7 @@ struct ContentView: View {
             // 기준 정보
             Section {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("1선지락전류 계산")
+                    Text("고장계산기")
                         .font(.title2).bold()
                     Text("기준: \(Int(baseMVA))MVA, \(String(format: "%.1f", baseKV))kV / Ibase = \(String(format: "%.1f", baseCurrentA)) A")
                         .font(.caption).foregroundColor(.secondary)
@@ -430,7 +430,7 @@ struct ContentView: View {
             // 계산 + 결과
             Section {
                 Button(action: calculateSLG) {
-                    Text("1선지락전류 계산")
+                    Text("고장계산")
                         .frame(maxWidth: .infinity)
                         .padding(8)
                 }

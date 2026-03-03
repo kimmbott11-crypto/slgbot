@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>단락전류 계산기</title>
+<title>고장계산기</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -81,7 +81,7 @@ select {
 <body>
 
 <div class="section">
-  <h1>단락전류 계산기</h1>
+  <h1>고장계산기</h1>
   <div class="subtitle">기준: 100MVA, 22.9kV / Ibase = <span id="ibase"></span> A</div>
   <div class="note">• 정상임피던스 = 역상임피던스 (Z1 = Z2)</div>
 </div>
@@ -113,7 +113,7 @@ select {
 </div>
 
 <div class="section">
-  <button class="btn btn-primary" onclick="calculate()">단락전류 계산</button>
+  <button class="btn btn-primary" onclick="calculate()">고장계산</button>
   <div id="result-area" style="display:none;">
     <div class="results-grid">
       <div class="result-box">
@@ -373,8 +373,8 @@ function calculate() {
 
   if (isNaN(brs1) || isNaN(bxs1) || isNaN(brs0) || isNaN(bxs0)) {
     document.getElementById('result-area').style.display = 'block';
-    document.getElementById('result-slg').textContent = '-';
-    document.getElementById('result-slg').style.fontSize = '16px';
+    document.getElementById('result-slg').textContent = '모선 임피던스를 입력하세요';
+    document.getElementById('result-slg').style.fontSize = '14px';
     document.getElementById('result-3p').textContent = '모선 임피던스를 입력하세요';
     document.getElementById('result-3p').style.fontSize = '14px';
     detailSLG = ''; detail3P = '';
